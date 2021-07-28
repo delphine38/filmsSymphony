@@ -16,6 +16,8 @@
     </head>
     <body>
         {% block body %}{% endblock %}
+        <a href="{{ path ('film_create', {id:film.id})}} " class="btn btn-primary">Créer un nouveau film</a>
+
 
     </body>
 </html>

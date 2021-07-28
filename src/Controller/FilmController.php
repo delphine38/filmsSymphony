@@ -3,10 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Film;
+use App\Form\FilmType;
 use App\Repository\FilmRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class FilmController extends AbstractController
 {
@@ -35,18 +39,29 @@ class FilmController extends AbstractController
 
     /**
      * @Route("/film/create", name="film_create", priority=2)
-     * @Route("/film/{id}/edition", name="film_edit", priority=2)
      */
-    public function create(Film $film = null): Response
+    public function create(Request $requete, EntityManagerInterface $manager, UserInterface $user): Response
     {
-        $modeEdition = true;
 
-        if($film) {
             $film = new Film();
-            $modeEdition = false;
-        }
 
 
+                $fomulaire = $this->createForm(FilmType::class, $film);
+                $fomulaire->handleRequest($requete);
+
+                if ($fomulaire->isSubmitted() && $fomulaire->isValid()){
+                    $film->setUser($user);
+                    $film->setAnneesortie(new \DateTime());
+
+
+                $manager->persist($film);
+                $manager->flush();
+
+        return $this->redirectToRoute('film');
 
     }
+
+    return $this->render('film/create.html.twig', [
+        'formulaire' =>$formulaire->createView(),
+        ]);
 }

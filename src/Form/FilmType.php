@@ -14,8 +14,7 @@ class FilmType extends AbstractType
             ->add('name')
             ->add('resumer')
             ->add('realisateur')
-            ->add('anneesortie')
-        ;
+            ->add('anneesortie');
     }
 
     public function configureOptions(OptionsResolver $resolver)
