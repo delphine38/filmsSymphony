@@ -26,15 +26,17 @@ class FilmController extends AbstractController
         ]);
     }
 
+
     /**
      * @Route ("/film/{id}", name="film_show")
      */
     public function show(Film $film): Response
     {
-        return  $this->render('film/film.html.twig', [
+        return $this->render('film/film.html.twig', [
             'film' => $film
-    ]);
+        ]);
     }
+
 
 
     /**
@@ -43,25 +45,41 @@ class FilmController extends AbstractController
     public function create(Request $requete, EntityManagerInterface $manager, UserInterface $user): Response
     {
 
-            $film = new Film();
+        $film = new Film();
+        $formulaire = $this->createForm(FilmType::class, $film);
+
+        $formulaire->handleRequest($requete);
+
+        if ($formulaire->isSubmitted() && $formulaire->isValid()) {
+            $film->setName($user);
+            $film->setAnneesortie(new \DateTime());
 
 
-                $fomulaire = $this->createForm(FilmType::class, $film);
-                $fomulaire->handleRequest($requete);
+            $manager->persist($film);
+            $manager->flush();
 
-                if ($fomulaire->isSubmitted() && $fomulaire->isValid()){
-                    $film->setUser($user);
-                    $film->setAnneesortie(new \DateTime());
+            return $this->redirectToRoute('film');
 
+        }
 
-                $manager->persist($film);
-                $manager->flush();
-
-        return $this->redirectToRoute('film');
-
+        return $this->render('film/create.html.twig', [
+            'formulaire' => $formulaire->createView(),
+        ]);
     }
 
-    return $this->render('film/create.html.twig', [
-        'formulaire' =>$formulaire->createView(),
-        ]);
+    /**
+     * @Route ("film/delete{id}", name="delete")
+     */
+    public function delete(Film $film, EntityManagerInterface $manager, UserInterface $user): Response
+    {
+        if ($user == $film->getUser()){
+            $manager->remove(($film));
+            $manager->flush();
+        }
+        return $this->redirect('/film');
+    }
+
+
+
+
 }
